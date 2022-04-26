@@ -1,12 +1,10 @@
 #!/bin/python
 # TODO:
-    # - add listwidget to search Results - done
-    # - add quality selection
-    # - add player shortcuts for next/prev
-    # - register app/desktop file
-    # - add settings
-    # - add search history - done only proper path misses
+# - add quality selection
+# - add settings
+# - Remove wildcard imports for the pyqt5 libs
 
+import re
 import sys
 import mpv
 import time
@@ -22,8 +20,9 @@ from PyQt5.QtMultimedia import *
 
 FONT_SIZE = 16
 BASE_URL = anipy_cli.config.gogoanime_url
-SEARCH_HISTORY_PATH =  Path(Path(__file__).parent) / "search_history.txt"
+SEARCH_HISTORY_PATH = Path(Path(__file__).parent) / "search_history.txt"
 ASSETS_PATH = Path(Path(__file__).parent) / "assets"
+
 
 class ErrorPopup(QMessageBox):
     def __init__(self, errstr):
@@ -31,8 +30,8 @@ class ErrorPopup(QMessageBox):
         self.setText(errstr)
         self.exec()
 
+
 class MainWin(QMainWindow):
-    
     def __init__(self):
         super().__init__()
         self.setWindowTitle("anipy-gui")
@@ -41,26 +40,27 @@ class MainWin(QMainWindow):
         self.setCentralWidget(self.central_widget)
         self.menu()
         self.show()
-    
+
     def menu(self):
         mainMenu = self.menuBar()
-        hist_menu = mainMenu.addMenu('History')
-        
-        show_hist_action = QAction('Show History', self)
+        hist_menu = mainMenu.addMenu("History")
+
+        show_hist_action = QAction("Show History", self)
         show_hist_action.triggered.connect(self.show_history)
-        show_hist_action.setShortcut('Ctrl+H')
+        show_hist_action.setShortcut("Ctrl+H")
 
         hist_menu.addAction(show_hist_action)
-        hist_menu.addAction('Clear History', self.clear_history)
-        hist_menu.addAction('Clear Search History', self.clear_search_hist)
+        hist_menu.addAction("Clear History", self.clear_history)
+        hist_menu.addAction("Clear Search History", self.clear_search_hist)
 
     def show_history(self):
         self.history_widget = HistoryWidget(self, self.central_widget).get_widget()
         self.central_widget.addTab(self.history_widget, "History")
         self.central_widget.setCurrentWidget(self.history_widget)
+
     def clear_search_hist(self):
         try:
-            os.remove('s_hist.txt')
+            os.remove("s_hist.txt")
         except FileNotFoundError:
             pass
 
@@ -70,16 +70,16 @@ class MainWin(QMainWindow):
         except FileNotFoundError:
             pass
 
-class TabWidget(QTabWidget):
 
+class TabWidget(QTabWidget):
     def __init__(self, mainwin):
         super().__init__()
         self.mainwin = mainwin
-        #self.setStyleSheet("background-color: white; color: black;")
+        # self.setStyleSheet("background-color: white; color: black;")
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.close_tab)
         self.add_search()
-    
+
     def close_tab(self, index):
         if index == 0:
             return
@@ -92,7 +92,6 @@ class TabWidget(QTabWidget):
 
         self.removeTab(index)
 
-
     def return_widget(self):
         return self
 
@@ -101,25 +100,28 @@ class TabWidget(QTabWidget):
         self.addTab(self.search_widget, "Search")
         self.setCurrentWidget(self.search_widget)
 
+
 def _write_to_search_history(search_str):
     list = _read_from_search_history()
-    list = [x.replace('\n', '') for x in list]
-    with open(SEARCH_HISTORY_PATH, 'w') as f:
+    list = [x.replace("\n", "") for x in list]
+    with open(SEARCH_HISTORY_PATH, "w") as f:
         if search_str in list:
             index = list.index(search_str)
             list.pop(index)
         list.append(search_str)
         for i in list:
-            f.write(i+'\n')
+            f.write(i + "\n")
+
 
 def _read_from_search_history():
     try:
-        with open(SEARCH_HISTORY_PATH, 'r') as f:
+        with open(SEARCH_HISTORY_PATH, "r") as f:
             list = f.readlines()
             return list
-            
+
     except FileNotFoundError:
         return []
+
 
 class SearchWidget(QWidget):
     def __init__(self, main_win, tab_widget):
@@ -127,13 +129,12 @@ class SearchWidget(QWidget):
         self.main_win = main_win
         self.tab = tab_widget
 
-    
     def create_search_widget(self):
         self.formLay = QFormLayout()
         self.search_box()
         self.setLayout(self.formLay)
         return self
-    
+
     def search_box(self):
         self.sbox = QComboBox()
         hist = _read_from_search_history()
@@ -146,10 +147,9 @@ class SearchWidget(QWidget):
         self.sbox.installEventFilter(self)
         self.sbox.clearEditText()
         self.formLay.addRow(None, self.sbox)
-    
+
     def eventFilter(self, source, event):
-        if (event.type() == QEvent.KeyPress and
-            event.key() == Qt.Key_Return):
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Return:
             self.start_query()
             return True
         return super().eventFilter(source, event)
@@ -188,17 +188,19 @@ class SearchWidget(QWidget):
         self.listwidget.setFont(QFont("Arial", FONT_SIZE))
         for i, x in zip(self.links, self.names):
             item = QListWidgetItem()
-            widget = ListWidget(x,
-                                i,
-                                self.tab,
-                                self.main_win,
-                                ).create_widget()
+            widget = ListWidget(
+                x,
+                i,
+                self.tab,
+                self.main_win,
+            ).create_widget()
 
             item.setSizeHint(widget.sizeHint())
             self.listwidget.addItem(item)
             self.listwidget.setItemWidget(item, widget)
 
         self.formLay.addRow(None, self.listwidget)
+
 
 class AnimePage(QStackedWidget):
     def __init__(self, name, link, main_win, tab, default_ep=None):
@@ -212,42 +214,40 @@ class AnimePage(QStackedWidget):
         widget = self.create_widget()
         self.addWidget(widget)
         self.setCurrentWidget(widget)
-    
+
     def create_tab(self):
         return self
 
     def anime_info_widget(self):
+        print(self.link)
         info = anipy_cli.get_anime_info(self.link)
-        
-        r = requests.get(info['image_url'])
+
+        r = requests.get(info["image_url"])
         pix = QPixmap()
         pix.loadFromData(r.content)
         pix = pix.scaled(300, 395, aspectRatioMode=Qt.KeepAspectRatio)
 
-
         hbox = QHBoxLayout()
         hbox.setAlignment(Qt.AlignLeft)
-        
+
         box = QGroupBox()
         box.setLayout(hbox)
         box.setFont(QFont("Arial", FONT_SIZE))
         box.setTitle(self.name)
-        
+
         lable = QLabel()
         lable.setPixmap(pix)
         hbox.addWidget(lable)
-        
+
         text_string = f"{info['synopsis']}\n\n{info['type']}\nGenres: {', '.join(info['genres'])}\nReleas Year: {info['release_year']}\nStatus: {info['status']}"
         lable_2 = QLabel()
         lable_2.setFont(QFont("Arial", 12))
         lable_2.setText(text_string)
         lable_2.setWordWrap(True)
         lable_2.setAlignment(Qt.AlignTop)
-        hbox.addWidget(lable_2)   
-
+        hbox.addWidget(lable_2)
 
         self.lay.addRow(box)
-
 
     def episode_list(self):
         self.entry = anipy_cli.entry()
@@ -263,7 +263,7 @@ class AnimePage(QStackedWidget):
             listwg.setCurrentRow(self.default_ep)
 
         self.lay.addRow(None, listwg)
-    
+
     def play_ep(self, ep):
         self.entry.name = self.name
         self.entry.ep = int(ep.text())
@@ -302,30 +302,7 @@ class AnimePage(QStackedWidget):
 
     def dl_signal_receiver(self, signal):
 
-        self.lay.removeWidget(self.box_ep_opts)
-        self.box_ep_opts.deleteLater()
-        self.box_ep_opts = None
-
-        self.field = QTextEdit()
-        self.lay.addRow(self.field)
-
-        self.entry.embed_url = ""
-        url_class = anipy_cli.videourl(self.entry, None)
-        url_class.stream_url()
-        self.entry = url_class.get_entry()
-        dl_class = anipy_cli.download(self.entry)
-        t1 = Thread(target=dl_class.download)
-        t1.start()
-
-
-    def redirect_stdout(self):
-
-        f = io.StringIO()
-        redirect_stdout(f)
-        s = f.getvalue()
-        print(s)
-        self.field.setText(s)
-
+        ErrorPopup("Not Implemented")
 
     def watch_receiver(self, data):
         self.entry.show_name = self.name
@@ -334,7 +311,7 @@ class AnimePage(QStackedWidget):
         self.setCurrentIndex(1)
 
     def dl_anime(self):
-       pass 
+        pass
 
     def create_widget(self):
         widget = QWidget()
@@ -343,10 +320,11 @@ class AnimePage(QStackedWidget):
         widget.setLayout(self.lay)
         return widget
 
+
 class MpvPage(QWidget):
     def __init__(self, entry, stack, mainwin, tab):
         super().__init__()
-        
+
         self.main_win = mainwin
         self.tab = tab
         self.stack = stack
@@ -365,24 +343,26 @@ class MpvPage(QWidget):
 
     def embed_mpv(self):
         import locale
-        locale.setlocale(locale.LC_NUMERIC, 'C')
+
+        locale.setlocale(locale.LC_NUMERIC, "C")
         self.stream_url()
         self.setAttribute(Qt.WA_DontCreateNativeAncestors)
         self.setAttribute(Qt.WA_NativeWindow)
         self.player = mpv.MPV(
-                         wid=str(int(self.winId())),
-                         osc=True,
-                         player_operation_mode='pseudo-gui',
-                         script_opts='osc-layout=box,osc-seekbarstyle=bar,osc-deadzonesize=0',
-                         input_default_bindings=True,
-                         input_vo_keyboard=True,
-                         force_media_title=f"{self.entry.show_name} - EP: {self.entry.ep} - {self.entry.quality}",
-                         http_header_fields=f"Referer: {self.entry.embed_url}")
-        
+            wid=str(int(self.winId())),
+            osc=True,
+            player_operation_mode="pseudo-gui",
+            script_opts="osc-layout=box,osc-seekbarstyle=bar,osc-deadzonesize=0",
+            input_default_bindings=True,
+            input_vo_keyboard=True,
+            force_media_title=f"{self.entry.show_name} - EP: {self.entry.ep} - {self.entry.quality}",
+            http_header_fields=f"Referer: {self.entry.embed_url}",
+        )
+
         self.player.play(self.entry.stream_url)
         anipy_cli.history(self.entry).write_hist()
 
-        @self.player.property_observer('fullscreen')
+        @self.player.property_observer("fullscreen")
         def fullscreen(_name, value):
             if value == True:
                 self.fullscreen()
@@ -390,13 +370,12 @@ class MpvPage(QWidget):
             else:
                 self.exit_fullscreen()
 
-
-        @self.player.on_key_press('q')
+        @self.player.on_key_press("q")
         def exit_player():
             self.exit()
             del self.player
 
-        @self.player.on_key_press('h')
+        @self.player.on_key_press("h")
         def toggle_cursor():
             if self.cursor == True:
                 self.stack.setCursor(Qt.BlankCursor)
@@ -406,24 +385,28 @@ class MpvPage(QWidget):
                 self.stack.unsetCursor()
                 self.cursor = True
 
-        @self.player.on_key_press('b')
+        @self.player.on_key_press("b")
         def prev_episode():
             ep_class = anipy_cli.epHandler(self.entry)
             self.entry = ep_class.prev_ep()
             self.stream_url()
-            self.player.force_media_title = f"{self.entry.show_name} - EP: {self.entry.ep} - {self.entry.quality}"
+            self.player.force_media_title = (
+                f"{self.entry.show_name} - EP: {self.entry.ep} - {self.entry.quality}"
+            )
             self.player.play(self.entry.stream_url)
             anipy_cli.history(self.entry).write_hist()
-        
-        @self.player.on_key_press('n')
+
+        @self.player.on_key_press("n")
         def next_episode():
             ep_class = anipy_cli.epHandler(self.entry)
             self.entry = ep_class.next_ep()
             self.stream_url()
-            self.player.force_media_title = f"{self.entry.show_name} - EP: {self.entry.ep} - {self.entry.quality}"
+            self.player.force_media_title = (
+                f"{self.entry.show_name} - EP: {self.entry.ep} - {self.entry.quality}"
+            )
             self.player.play(self.entry.stream_url)
             anipy_cli.history(self.entry).write_hist()
-    
+
     def fullscreen(self):
         self.max = self.main_win.isMaximized()
         self.main_win.showFullScreen()
@@ -445,7 +428,7 @@ class MpvPage(QWidget):
 
         self.fs = False
         self.main_win.show()
-    
+
     def exit(self):
         self.player.quit()
         self.exit_fullscreen()
@@ -453,6 +436,7 @@ class MpvPage(QWidget):
         curr_widget = self.stack.currentWidget()
         self.stack.removeWidget(curr_widget)
         self.stack.setCurrentIndex(1)
+
 
 class HistoryWidget(QWidget):
     def __init__(self, mainwin, tab):
@@ -463,19 +447,20 @@ class HistoryWidget(QWidget):
 
     def format_history(self):
         items = []
-    
+
     def history_list(self):
         hist = anipy_cli.history(anipy_cli.entry).read_save_data()
-        
+
         list_widget = QListWidget()
         for i in hist:
             item = QListWidgetItem()
-            widget = ListWidget(i,
-                                hist[i]['category-link'],
-                                self.tab,
-                                self.main_win,
-                                ep=hist[i]['ep'],
-                                ).create_widget()
+            widget = ListWidget(
+                i,
+                hist[i]["category-link"],
+                self.tab,
+                self.main_win,
+                ep=hist[i]["ep"],
+            ).create_widget()
 
             item.setSizeHint(widget.sizeHint())
             list_widget.addItem(item)
@@ -488,6 +473,7 @@ class HistoryWidget(QWidget):
         self.setLayout(self.lay)
         return self
 
+
 class ListWidget(QWidget):
     def __init__(self, name, url, tab, main_win, ep: int = None):
         super().__init__()
@@ -496,7 +482,7 @@ class ListWidget(QWidget):
         self.main_win = main_win
         self.tab = tab
         self.ep = ep
-        self.url = url.replace(BASE_URL, "")
+        self.url = re.sub(r"^(?:(http[s]?|ftp[s]):\/\/)?([^:\/\s]+)", "", url)
         self.label_name = name
         if ep != None:
             self.ep = self.ep - 1
@@ -516,19 +502,23 @@ class ListWidget(QWidget):
         self.lay.addWidget(button)
         self.setLayout(self.lay)
         return self
-    
+
     def switch_to_tab(self):
-        anime_page = AnimePage(self.name,
-                               self.url,
-                               self.main_win,
-                               self.tab,
-                               self.ep).create_tab()
+        anime_page = AnimePage(
+            self.name, self.url, self.main_win, self.tab, self.ep
+        ).create_tab()
         self.tab.addTab(anime_page, self.name)
         self.tab.setCurrentWidget(anime_page)
+
 
 def main():
     app = QApplication(sys.argv)
     ex = MainWin()
-    w = 1300; h = 1000
+    w = 1300
+    h = 1000
     ex.resize(w, h)
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
