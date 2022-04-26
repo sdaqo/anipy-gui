@@ -29,7 +29,7 @@ To remove the desktop file clone the repository again or use your already cloned
 
 # Player and App Shortcuts
 
-Generaly, in the Player the [standart mpv shortcuts](https://mpv.io/manual/master/#keyboard-control) are applied, there are some exceptions though:
+Generaly, in the Player the [standart mpv shortcuts](https://mpv.io/manual/master/#keyboard-control) are applied, there are some exceptions:
 
 | Action            |  Key   |                    Scope |
 | ----------------- | :----: | -----------------------: |
