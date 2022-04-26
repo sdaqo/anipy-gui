@@ -7,7 +7,6 @@
 import re
 import sys
 import mpv
-import time
 import requests
 import anipy_cli
 import os
@@ -73,7 +72,7 @@ class MainWin(QMainWindow):
 
 class TabWidget(QTabWidget):
     def __init__(self, mainwin):
-        super().__init__()
+        super().__init__(mainwin)
         self.mainwin = mainwin
         # self.setStyleSheet("background-color: white; color: black;")
         self.setTabsClosable(True)
@@ -125,7 +124,7 @@ def _read_from_search_history():
 
 class SearchWidget(QWidget):
     def __init__(self, main_win, tab_widget):
-        super().__init__()
+        super().__init__(tab_widget)
         self.main_win = main_win
         self.tab = tab_widget
 
@@ -203,8 +202,8 @@ class SearchWidget(QWidget):
 
 
 class AnimePage(QStackedWidget):
-    def __init__(self, name, link, main_win, tab, default_ep=None):
-        super().__init__()
+    def __init__(self, name, link, main_win, tab, parent, default_ep=None):
+        super().__init__(parent)
         self.name = name
         self.tab = tab
         self.mainwin = main_win
@@ -322,7 +321,7 @@ class AnimePage(QStackedWidget):
 
 class MpvPage(QWidget):
     def __init__(self, entry, stack, mainwin, tab):
-        super().__init__()
+        super().__init__(stack)
 
         self.main_win = mainwin
         self.tab = tab
@@ -504,7 +503,7 @@ class ListWidget(QWidget):
 
     def switch_to_tab(self):
         anime_page = AnimePage(
-            self.name, self.url, self.main_win, self.tab, self.ep
+            self.name, self.url, self.main_win, self.tab, self, self.ep
         ).create_tab()
         self.tab.addTab(anime_page, self.name)
         self.tab.setCurrentWidget(anime_page)
