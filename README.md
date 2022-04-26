@@ -7,12 +7,15 @@ As of now this only supports linux because libmpv on windows sucks.
 # Installation
 
 Prerequisits: [mpv](https://mpv.io) and libmpv but that should ship with mpv on install.
+```
+$ git clone https://github.com/sdaqo/anipy-gui
 
-`git clone https://github.com/sdaqo/anipy-gui`
-`cd anipy-gui`
-`pip install .`
-`./post-install.sh` To Create Desktop file so it shows up in the start menu
+$ cd anipy-gui
 
+$ pip install .
+
+$ ./post-install.sh To Create Desktop file so it shows up in the start menu
+```
 ## Uninstall
 
 `pip uninstall anipy-gui`
