@@ -17,6 +17,6 @@ setup(
     author_email="sdaqo.dev@protonmail.com",
     url="https://github.com/sdaqo/anipy-gui",
     license="GPL-3.0",
-    install_requires=["anipy-cli>=2.2.7", "PyQt5", "python-mpv", "desktop_file"],
+    install_requires=["anipy-cli>=2.2.7", "PyQt5", "python-mpv"],
     entry_points="[console_scripts]\nanipy-gui=anipy_gui.run:main",
 )
