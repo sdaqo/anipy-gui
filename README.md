@@ -35,7 +35,7 @@ Generaly, in the Player the [standart mpv shortcuts](https://mpv.io/manual/maste
 | ----------------- | :----: | -----------------------: |
 | History           | Ctrl+H | Everywhere except player |
 | Quit Player       |   q    |                   player |
-| Fullscreen Player |   f    |                   player |
+| Fullscreen Player |   f/player button    |                   player |
 | Next Episode      |   n    |                   player |
 | Previous Episode  |   b    |                   player |
 | Hide Cursor       |   h    |                   player |
