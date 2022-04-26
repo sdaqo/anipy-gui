@@ -1,8 +1,13 @@
+
+
+https://user-images.githubusercontent.com/63876564/165341897-a89cd315-8067-4462-ac53-47c903b3207d.mp4
+
 # anipy-gui
 
 A very simple GUI frontend for [anipy-cli](https://github.com/sdaqo/anipy-cli). (WIP, expect bugs)
 
 As of now this only supports linux because libmpv on windows sucks.
+
 
 # Installation
 
