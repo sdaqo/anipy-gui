@@ -19,6 +19,7 @@ $ ./post-install.sh To Create Desktop file so it shows up in the start menu
 ## Uninstall
 
 `pip uninstall anipy-gui`
+
 To remove the desktop file clone the repository again or use your already cloned one and execute `./remove-desktop-entry.sh`
 
 # Player and App Shortcuts
