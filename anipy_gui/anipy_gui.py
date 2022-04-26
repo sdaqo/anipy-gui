@@ -19,7 +19,7 @@ from PyQt5.QtMultimediaWidgets import *
 from PyQt5.QtMultimedia import *
 
 FONT_SIZE = 16
-BASE_URL = anipy_cli.config.gogoanime_url
+BASE_URL = anipy_cli.config.config.gogoanime_url
 SEARCH_HISTORY_PATH = Path(Path(__file__).parent) / "search_history.txt"
 ASSETS_PATH = Path(Path(__file__).parent) / "assets"
 
@@ -66,7 +66,7 @@ class MainWin(QMainWindow):
 
     def clear_history(self):
         try:
-            anipy_cli.config.history_file_path.unlink()
+            anipy_cli.config.config.history_file_path.unlink()
         except FileNotFoundError:
             pass
 
@@ -219,7 +219,6 @@ class AnimePage(QStackedWidget):
         return self
 
     def anime_info_widget(self):
-        print(self.link)
         info = anipy_cli.get_anime_info(self.link)
 
         r = requests.get(info["image_url"])
