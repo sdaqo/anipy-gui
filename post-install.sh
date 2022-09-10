@@ -7,4 +7,4 @@ EXEC_PATH=$(which anipy-gui)
 echo "> Generating .dektop file"
 printf '%b\n' "[Desktop Entry]\nName=AniPy GUI\nComment=AniPy GUI\nExec=$EXEC_PATH\nIcon=$ICON_PATH\nTerminal=false\nType=Application\nCategories=Entertainment;Anime" > anipy-gui.desktop
 echo "> Moving .dektop file to: $APPLICTION_PATH"
-sudo mv anipy-gui.desktop $APPLICTION_PATH
+mv anipy-gui.desktop $APPLICTION_PATH
