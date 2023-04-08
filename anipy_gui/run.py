@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-from . import anipy_gui
+import sys
+from anipy_gui.gui.app import AniPyApplication
 
-def main():
-    anipy_gui.main()
-
-if __name__ == '__main__':
-    main()
+app = AniPyApplication()
+app.run(sys.argv)
