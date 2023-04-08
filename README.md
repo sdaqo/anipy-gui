@@ -1,4 +1,5 @@
 
+# Info: There is a new version currently in development to check switch to the `new_gtk` branch
 
 https://user-images.githubusercontent.com/63876564/165341897-a89cd315-8067-4462-ac53-47c903b3207d.mp4
 
