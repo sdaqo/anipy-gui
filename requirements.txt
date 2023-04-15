@@ -1,0 +1,6 @@
+dataclasses_json
+anipy-cli
+appdirs
+PyGObject
+loguru
+#TODO: Incomplete?

@@ -1,7 +1,8 @@
 import sys
 import gi
+
 gi.require_version("Gtk", "3.0")
-from gi.repository import GLib, Gio, Gtk
+from gi.repository import Gtk
 
 from pathlib import Path
 from anipy_gui.gui.anipywindow import AniPyWindow
@@ -10,7 +11,7 @@ from anipy_gui.gui.anipywindow import AniPyWindow
 class AniPyApplication(Gtk.Application):
     def __init__(self):
         super().__init__(
-            application_id="org.anipy.AnipyGUI",
+            application_id="com.github.sdaqo.anipy-gui",
         )
 
         self.window = None

@@ -44,7 +44,9 @@ class SidebarSection:
         row.set_activatable(False)
         row.set_selectable(False)
 
-        outer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, )
+        outer_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+        )
         outer_box.set_size_request(200, -1)
 
         inner_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -57,10 +59,10 @@ class SidebarSection:
         label = Gtk.Label(
             use_markup=True,
             halign=Gtk.Align.START,
-            label=f"<span size='12000'><b>{self.title}</b></span>"
+            label=f"<span size='12000'><b>{self.title}</b></span>",
         )
         label.get_style_context().add_class("dim-label")
-        
+
         inner_box.pack_start(label, expand=True, fill=True, padding=0)
         inner_box.pack_end(self.header_icon, expand=False, fill=False, padding=0)
 
@@ -86,7 +88,7 @@ class Sidebar(Gtk.ListBox):
     def _init_sections(self):
         search_section = SidebarSection(
             title="Search",
-            header_icon=Gtk.Image.new_from_icon_name (
+            header_icon=Gtk.Image.new_from_icon_name(
                 "system-search-symbolic", Gtk.IconSize.LARGE_TOOLBAR
             ),
         )
@@ -95,17 +97,15 @@ class Sidebar(Gtk.ListBox):
             title="User",
             header_icon=Gtk.Image.new_from_icon_name(
                 "user-idle-symbolic", Gtk.IconSize.LARGE_TOOLBAR
-            )
+            ),
         )
 
         player_section = SidebarSection(
             title="Players",
             header_icon=Gtk.Image.new_from_icon_name(
                 "applications-multimedia-symbolic", Gtk.IconSize.LARGE_TOOLBAR
-            )
+            ),
         )
-
-        
 
         self.sections["Search"] = search_section
         self.sections["User"] = user_section

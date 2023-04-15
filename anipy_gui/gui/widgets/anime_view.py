@@ -1,14 +1,17 @@
 from anipy_cli import Entry
 from gi.repository import GLib, Gio, Gtk, GdkPixbuf, Pango, Gdk
 
+from anipy_gui.anime import Anime
+
 
 class AnimeWidget(Gtk.Overlay):
-    WIDTH  = 150
+    WIDTH = 150
     HEIGHT = 200
-    def __init__(self, anime_entry: Entry, img: str):
+
+    def __init__(self, anime: Anime, img: str):
         super().__init__()
         self.set_size_request(self.WIDTH, self.HEIGHT)
-        self.anime_entry = anime_entry
+        self.anime = anime
         self.img_path = img
 
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.img_path)
@@ -32,18 +35,21 @@ class AnimeWidget(Gtk.Overlay):
         self.fav_button.set_margin_top(5)
         self.fav_button.set_margin_end(5)
         self.fav_button.connect("clicked", self.onclick_fav)
-        self.fav_button.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.5))
-
+        self.fav_button.override_background_color(
+            Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.5)
+        )
 
         self.title_box = Gtk.Box()
         self.title_box.set_valign(Gtk.Align.END)
         self.title_box.set_halign(Gtk.Align.START)
         self.title_box.set_margin_start(5)
         self.title_box.set_margin_bottom(5)
-        self.title_box.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.7))
-        #TODO: Rounded corners
+        self.title_box.override_background_color(
+            Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.7)
+        )
+        # TODO: Rounded corners
 
-        self.label = Gtk.Label(anime_entry.show_name)
+        self.label = Gtk.Label(anime.show_name)
         self.label.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(255, 255, 255, 1))
         self.label.set_max_width_chars(20)
         self.label.set_margin_start(2)
@@ -56,10 +62,10 @@ class AnimeWidget(Gtk.Overlay):
 
         self.add_overlay(self.fav_button)
         self.add_overlay(self.title_box)
-    
+
     def scale_image(self, pixbuf: GdkPixbuf.Pixbuf, height, width) -> GdkPixbuf.Pixbuf:
         ar = pixbuf.get_width() / pixbuf.get_height()
-        new_width  = int(height * ar)
+        new_width = int(height * ar)
         pixbuf = pixbuf.scale_simple(new_width, height, GdkPixbuf.InterpType.BILINEAR)
         if pixbuf.get_width() >= width or pixbuf.get_height() >= height:
             src_x = int(pixbuf.get_width() / 2 - width / 2)
@@ -86,7 +92,7 @@ class AnimeWidget(Gtk.Overlay):
 
 class AnimeGrid(Gtk.FlowBox):
     def __init__(self, application):
-        super().__init__() 
+        super().__init__()
         self.set_valign(Gtk.Align.START)
         self.set_halign(Gtk.Align.START)
         self.set_homogeneous(True)
@@ -96,6 +102,23 @@ class AnimeGrid(Gtk.FlowBox):
         self.set_min_children_per_line(4)
 
     def add_anime_widget(self, anime_widget: AnimeWidget):
-        #anime_widget.resize(150, 200)
+        # anime_widget.resize(150, 200)
         self.add(anime_widget)
 
+
+class AnimeView(Gtk.Box):
+    def __init__(self, application):
+        super().__init__()
+        self.set_orientation(Gtk.Orientation.VERTICAL)
+        self.set_valign(Gtk.Align.START)
+        self.set_halign(Gtk.Align.START)
+
+        self.anime_grid = AnimeGrid(application)
+        self.add(self.anime_grid)
+
+        self.revealer = Gtk.Revealer()
+        self.revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_DOWN)
+        self.revealer.set_transition_duration(500)
+
+    def add_anime_widget(self, anime_widget: AnimeWidget):
+        self.anime_grid.add_anime_widget(anime_widget)

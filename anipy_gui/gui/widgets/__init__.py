@@ -1,1 +1,1 @@
-from anipy_gui.gui.widgets.anime_grid import AnimeGrid, AnimeWidget
+from anipy_gui.gui.widgets.anime_view import AnimeView, AnimeGrid, AnimeWidget

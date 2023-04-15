@@ -1,2 +1,2 @@
-anipy_gui/__pycache__/
-anipy_gui/search_history.txt
+__pycache__/
+*.pyc
