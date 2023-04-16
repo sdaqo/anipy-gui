@@ -14,6 +14,7 @@ class SidebarSection:
     def __init__(self, title, header_icon: Gtk.Image):
         self.title = title
         self.header_icon = header_icon
+        self.header_icon.get_style_context().add_class("icon")
         self.rows: List[SideBarRow] = []
 
         self._add_header()
@@ -30,6 +31,7 @@ class SidebarSection:
         box.add(label)
 
         if icon:
+            icon.get_style_context().add_class("icon")
             box.add(icon)
 
         row.add(box)
@@ -80,6 +82,7 @@ class Sidebar(Gtk.ListBox):
         super().__init__()
         self.set_size_request(200, -1)
         self.set_selection_mode(Gtk.SelectionMode.SINGLE)
+        self.get_style_context().add_class("sidebar")
 
         self.application = application
         self.sections: dict[str, SidebarSection] = {}
@@ -96,7 +99,7 @@ class Sidebar(Gtk.ListBox):
         user_section = SidebarSection(
             title="User",
             header_icon=Gtk.Image.new_from_icon_name(
-                "user-idle-symbolic", Gtk.IconSize.LARGE_TOOLBAR
+                "user-available-symbolic", Gtk.IconSize.LARGE_TOOLBAR
             ),
         )
 

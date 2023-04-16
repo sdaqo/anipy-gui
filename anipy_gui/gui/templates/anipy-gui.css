@@ -1,0 +1,42 @@
+.revealer-box {
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	background-color: #121212;
+	padding: 10px;
+}
+
+.revealer-box > label {
+	color: #fff;
+	font-size: 1.7em;
+	font-weight: bold;
+}
+
+.title-box {
+	border-radius: 4px;
+}
+
+.anime-view {
+	background-color: #212121;
+}
+
+.flow-box {
+	padding: 4px;
+}
+
+.flow-box > flowboxchild {
+	border-radius: 4px;
+}
+
+.image {
+	border-radius: 4px;
+}
+
+
+
+.sidebar-container {
+	background-color: #2b2d31;
+}
+
+.icon {
+	color: #4c3a84;
+}

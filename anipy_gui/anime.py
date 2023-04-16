@@ -27,7 +27,7 @@ class Anime(Entry):
         self.settings = load_settings()
 
     def get_is_favorite(self) -> bool:
-        fav_list = get_fav_list() 
+        fav_list = get_fav_list()
 
         return self.show_name in fav_list
 
@@ -53,7 +53,7 @@ class Anime(Entry):
         return temp_entry.stream_url
 
     def get_anime_info(self) -> AnimeInfo:
-        cached_info = info_from_cache(self.show_name.anime_name)
+        cached_info = info_from_cache(self.show_name)
 
         if cached_info:
             return cached_info
@@ -66,7 +66,7 @@ class Anime(Entry):
 
         return info
 
-    def get_progress(self) -> Progress:
+    def get_progress(self) -> Union[Progress, None]:
         return get_progress(self.show_name)
 
     def get_image(self) -> Path:
@@ -81,11 +81,17 @@ class Anime(Entry):
         return img_path
 
     def set_favorite(self, is_favorite: bool):
-        fav_list = get_fav_list() 
+        fav_list = get_fav_list()
+        fav_list = [i for i in fav_list if i]
+
         fav_file = get_fav_file()
 
-        if not self.show_name in fav_list:
-            fav_list.append(self.show_name)
+        if self.show_name in fav_list:
+            if not is_favorite:
+                fav_list.remove(self.show_name)
+        else:
+            if is_favorite:
+                fav_list.append(self.show_name)
 
         with fav_file.open("w") as file:
             for i in fav_list:
