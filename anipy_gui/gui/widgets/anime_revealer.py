@@ -14,12 +14,11 @@ class AnimeRevealer(Gtk.Revealer):
         super().__init__()
         self.set_transition_type(Gtk.RevealerTransitionType.SLIDE_UP)
         self.set_transition_duration(500)
-        
+
         self.anime = None
 
         self.box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         self.box.get_style_context().add_class("revealer-box")
-
 
         self.anime_label = Gtk.Label()
         self.anime_label.set_margin_start(10)
@@ -32,10 +31,11 @@ class AnimeRevealer(Gtk.Revealer):
         self.anime_label.set_line_wrap(True)
         self.anime_label.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
 
-
         self.play_button = Gtk.Button.new_with_label("Play")
         self.play_button.set_image(
-            Gtk.Image.new_from_icon_name("media-playback-start", Gtk.IconSize.LARGE_TOOLBAR)
+            Gtk.Image.new_from_icon_name(
+                "media-playback-start", Gtk.IconSize.LARGE_TOOLBAR
+            )
         )
         self.play_button.set_always_show_image(True)
         self.play_button.set_relief(Gtk.ReliefStyle.NONE)
@@ -51,11 +51,10 @@ class AnimeRevealer(Gtk.Revealer):
         self.download_button.set_focus_on_click(False)
         self.download_button.connect("clicked", lambda _: download_callback(self.anime))
 
-
         self.box.pack_start(self.anime_label, True, True, 0)
         self.box.pack_start(self.play_button, False, False, 0)
         self.box.pack_start(self.download_button, False, False, 0)
-        
+
         self.add(self.box)
 
     def set_anime(self, anime: Anime):

@@ -9,7 +9,7 @@ from anipy_gui.progress import Progress, set_progress, get_progress
 from anipy_gui.anime_info import AnimeInfo
 from anipy_gui.settings import load_settings
 from anipy_gui.version import __appname__
-from anipy_gui.util import get_fav_list, get_fav_file
+from anipy_gui.favorites import is_favorite, add_favorite, remove_favorite
 from anipy_gui.cache import (
     info_from_cache,
     info_to_cache,
@@ -27,9 +27,7 @@ class Anime(Entry):
         self.settings = load_settings()
 
     def get_is_favorite(self) -> bool:
-        fav_list = get_fav_list()
-
-        return self.show_name in fav_list
+        return is_favorite(self.show_name)
 
     def get_episodes(self):
         temp_entry = Entry(category_url=self.category_url)
@@ -81,21 +79,11 @@ class Anime(Entry):
         return img_path
 
     def set_favorite(self, is_favorite: bool):
-        fav_list = get_fav_list()
-        fav_list = [i for i in fav_list if i]
-
-        fav_file = get_fav_file()
-
-        if self.show_name in fav_list:
-            if not is_favorite:
-                fav_list.remove(self.show_name)
+        if is_favorite:
+            add_favorite(self.show_name, self.category_url)
         else:
-            if is_favorite:
-                fav_list.append(self.show_name)
+            remove_favorite(self.show_name)
 
-        with fav_file.open("w") as file:
-            for i in fav_list:
-                file.write(i + "\n")
-
+        
     def set_progress(self, progress: Progress):
         set_progress(self.show_name, progress)

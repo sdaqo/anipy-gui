@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, Optional, List
-from gi.repository import GLib, Gio, Gtk
+from gi.repository import GLib, Gio, Gtk, Gdk
 
 
 @dataclass(frozen=True)
@@ -20,23 +20,58 @@ class SidebarSection:
         self._add_header()
 
     def add_button(
-        self, title: str, callback: Callable, icon: Optional[Gtk.Image] = None
+        self,
+        title: str,
+        callback: Callable,
+        icon: Optional[Gtk.Image] = None,
+        removeable: bool = False,
+        remove_callback: Optional[Callable] = None,
     ):
         row = Gtk.ListBoxRow()
 
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         box.set_margin_start(7)
-
-        label = Gtk.Label(hexpand=False, halign=Gtk.Align.START, label=title)
-        box.add(label)
-
+        
         if icon:
-            icon.get_style_context().add_class("icon")
-            box.add(icon)
+            box.pack_start(icon, expand=False, fill=False, padding=4)
+        else:
+            box.pack_start(Gtk.Image(), expand=False, fill=False, padding=4)
 
+        label = Gtk.Label(
+            hexpand=False, halign=Gtk.Align.START, label=title
+        )
+        box.pack_start(label, expand=True, fill=True, padding=0)
+
+        row.get_style_context().add_class("sidebar-button")
         row.add(box)
 
         sidebar_row = SideBarRow(title, row, callback)
+
+        remove_btn = Gtk.Button()
+        remove_btn.set_relief(Gtk.ReliefStyle.NONE)
+        remove_btn.set_focus_on_click(False)
+        remove_btn.set_can_focus(False)
+        remove_btn.set_can_default(False)
+        remove_btn.set_always_show_image(True)
+        if removeable:
+            remove_btn.set_image(
+                Gtk.Image.new_from_icon_name(
+                    "edit-clear-all-symbolic", Gtk.IconSize.BUTTON
+                )
+            )
+            remove_btn.connect("clicked", lambda _: remove_callback(sidebar_row))
+        else:
+            placholder_icon = Gtk.Image.new_from_icon_name(
+                "edit-clear-all-symbolic", Gtk.IconSize.BUTTON
+            )
+            placholder_icon.override_color(
+                Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0)
+            )
+
+            remove_btn.set_image(placholder_icon)
+            remove_btn.set_sensitive(False)
+        box.pack_end(remove_btn, expand=False, fill=False, padding=0)
+
         self.rows.append(sidebar_row)
 
         return sidebar_row
@@ -58,6 +93,7 @@ class SidebarSection:
         inner_box.set_margin_start(9)
         inner_box.set_margin_end(9)
 
+
         label = Gtk.Label(
             use_markup=True,
             halign=Gtk.Align.START,
@@ -68,10 +104,11 @@ class SidebarSection:
         inner_box.pack_start(label, expand=True, fill=True, padding=0)
         inner_box.pack_end(self.header_icon, expand=False, fill=False, padding=0)
 
-        sep = Gtk.Separator()
+        sep = Gtk.HSeparator()
+        sep.get_style_context().add_class("sidebar-separator")
 
-        outer_box.add(inner_box)
-        outer_box.add(sep)
+        outer_box.pack_start(inner_box, expand=False, fill=False, padding=0)
+        outer_box.pack_start(sep, expand=False, fill=True, padding=0)
 
         row.add(outer_box)
         self.rows.append(SideBarRow(self.title, row, None))
@@ -104,7 +141,7 @@ class Sidebar(Gtk.ListBox):
         )
 
         player_section = SidebarSection(
-            title="Players",
+            title="Anime",
             header_icon=Gtk.Image.new_from_icon_name(
                 "applications-multimedia-symbolic", Gtk.IconSize.LARGE_TOOLBAR
             ),
@@ -112,7 +149,12 @@ class Sidebar(Gtk.ListBox):
 
         self.sections["Search"] = search_section
         self.sections["User"] = user_section
-        self.sections["Players"] = player_section
+        self.sections["Anime"] = player_section
+
+        self.reload()
+
+    def reload(self):
+        self.foreach(lambda x: self.remove(x))
 
         for sec in self.sections.values():
             for row in sec.rows:
@@ -123,6 +165,8 @@ class Sidebar(Gtk.ListBox):
     ) -> SidebarSection:
         new_section = SidebarSection(title=section_title, header_icon=header_icon)
         self.sections[section_name] = new_section
+        self.reload()
+        self.show_all()
 
         return new_section
 
@@ -132,11 +176,27 @@ class Sidebar(Gtk.ListBox):
         title: str,
         callback: Callable,
         icon: Optional[Gtk.Image] = None,
+        removeable: bool = False,
+        remove_callback: Optional[Callable] = None,
     ) -> SideBarRow:
-        btn = self.sections[section_name].add_button(title, callback, icon)
-        self.add(btn.gtk_object)
+        btn = self.sections[section_name].add_button(
+            title, callback, icon, removeable, remove_callback
+        )
+        self.reload()
+        self.show_all()
 
         return btn
 
     def remove_button(self, sidebar_row_button: SideBarRow):
+        for sec in self.sections.values():
+            for row in sec.rows:
+                if row == sidebar_row_button:
+                    sec.rows.remove(row)
+
         self.remove(sidebar_row_button.gtk_object)
+
+    def select_row_by_title(self, title: str):
+        for sec in self.sections.values():
+            for row in sec.rows:
+                if row.title == title:
+                    self.select_row(row.gtk_object)

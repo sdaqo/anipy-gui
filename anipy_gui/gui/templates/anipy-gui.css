@@ -31,12 +31,18 @@
 	border-radius: 4px;
 }
 
-
+.sidebar-button {
+	border-radius: 0px;
+	font-size: 1.05em;
+	padding: 9px;
+}
 
 .sidebar-container {
 	background-color: #2b2d31;
 }
 
-.icon {
-	color: #4c3a84;
+
+.sidebar-separator {
+	margin-right: -2px;
+	margin-left: -2px;
 }
