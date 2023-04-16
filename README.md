@@ -8,4 +8,4 @@ This new version is made to solve issues with the original qt implementation and
 
 Teaser Preview:
 
-![image](https://user-images.githubusercontent.com/63876564/230728803-1f5845b4-2306-4ecd-8984-b30c0c366635.png)
+![Screenshot_20230416_225812](https://user-images.githubusercontent.com/63876564/232341909-9caa8acc-d357-493c-9892-228669b350f2.png)
