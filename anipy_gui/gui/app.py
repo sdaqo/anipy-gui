@@ -3,8 +3,9 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-
 from pathlib import Path
+from loguru import logger
+
 from anipy_gui.gui.anipywindow import AniPyWindow
 
 

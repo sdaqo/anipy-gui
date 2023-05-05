@@ -2,14 +2,16 @@ import threading
 from gi.repository import GLib
 from loguru import logger
 from anipy_cli import query, config, Entry
+from typing import List
 
 from anipy_gui.gui.widgets.anime_view import AnimeView, AnimeWidget
 from anipy_gui.anime import Anime
+from anipy_gui.gui.widgets.anime_revealer import RevealerAction
 
 
 class AnimeSearchWidget(AnimeView):
-    def __init__(self, application):
-        super().__init__(application=application)
+    def __init__(self, application, revealer_actions: List[RevealerAction]):
+        super().__init__(application=application, revealer_actions=revealer_actions)
         self.search_thread = None
         self.searching = False
 
@@ -32,11 +34,11 @@ class AnimeSearchWidget(AnimeView):
             anime = Anime(show_name=n, category_url=gogo_url + l)
             anime_widget = AnimeWidget(anime=anime, img_loader=anime.get_image)
             widgets.append(anime_widget)
-        GLib.idle_add(self.stop_loading)
 
         for i in widgets:
-            GLib.idle_add(self.add_anime_widget, i)
+            self.add_anime_widget(i)
 
+        GLib.idle_add(self.stop_loading)
         GLib.idle_add(self.show_all)
         self.searching = False
 

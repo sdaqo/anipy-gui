@@ -46,3 +46,34 @@
 	margin-right: -2px;
 	margin-left: -2px;
 }
+
+.animetab-view {
+	background-color: #212121;
+	box-shadow: none;
+}
+
+.animetab-view tab {
+	padding: 10px;
+	font-size: 1.08em;
+	font-weight: bold;
+}
+
+.no-padding {
+	padding: 0px;
+}
+
+.anime-info {
+	font-size: 1.08em;
+}
+
+.episode-row {
+	padding: 10px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	border-radius: 5px;
+	background-color: alpha(white, 0.1);
+}
+
+.episode-row:hover {
+	background-color: #2b2d31;
+}

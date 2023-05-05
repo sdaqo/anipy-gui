@@ -19,6 +19,7 @@ class Favorite:
 class Favorites:
     favorites: List[Favorite]
 
+
 def get_fav_file():
     data_dir = Path(user_data_dir(__appname__, appauthor=False))
     data_dir.mkdir(parents=True, exist_ok=True)
@@ -35,19 +36,20 @@ def get_favorites():
 
     return favs
 
+
 def add_favorite(show_name, category_url):
     fav_file = get_fav_file()
     favs = get_favorites()
     favs.favorites.append(Favorite(show_name, category_url))
     fav_file.write_text(favs.to_json())
 
+
 def remove_favorite(show_name):
     fav_file = get_fav_file()
     favs = get_favorites()
-    favs.favorites = [
-        fav for fav in favs.favorites if fav.show_name != show_name
-    ]
+    favs.favorites = [fav for fav in favs.favorites if fav.show_name != show_name]
     fav_file.write_text(favs.to_json())
+
 
 def is_favorite(show_name):
     favs = get_favorites()

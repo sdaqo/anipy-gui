@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, Optional, List
-from gi.repository import GLib, Gio, Gtk, Gdk
+from gi.repository import Gtk, Gdk, Pango
 
 
 @dataclass(frozen=True)
@@ -25,21 +25,21 @@ class SidebarSection:
         callback: Callable,
         icon: Optional[Gtk.Image] = None,
         removeable: bool = False,
-        remove_callback: Optional[Callable] = None,
+        remove_callback: Optional[Callable[[SideBarRow], None]] = None,
     ):
         row = Gtk.ListBoxRow()
 
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         box.set_margin_start(7)
-        
+
         if icon:
             box.pack_start(icon, expand=False, fill=False, padding=4)
         else:
             box.pack_start(Gtk.Image(), expand=False, fill=False, padding=4)
 
-        label = Gtk.Label(
-            hexpand=False, halign=Gtk.Align.START, label=title
-        )
+        label = Gtk.Label(hexpand=False, halign=Gtk.Align.START, label=title)
+        label.set_max_width_chars(27)
+        label.set_ellipsize(Pango.EllipsizeMode.END)
         box.pack_start(label, expand=True, fill=True, padding=0)
 
         row.get_style_context().add_class("sidebar-button")
@@ -64,9 +64,7 @@ class SidebarSection:
             placholder_icon = Gtk.Image.new_from_icon_name(
                 "edit-clear-all-symbolic", Gtk.IconSize.BUTTON
             )
-            placholder_icon.override_color(
-                Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0)
-            )
+            placholder_icon.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0))
 
             remove_btn.set_image(placholder_icon)
             remove_btn.set_sensitive(False)
@@ -92,7 +90,6 @@ class SidebarSection:
         inner_box.set_margin_bottom(6)
         inner_box.set_margin_start(9)
         inner_box.set_margin_end(9)
-
 
         label = Gtk.Label(
             use_markup=True,
@@ -140,7 +137,7 @@ class Sidebar(Gtk.ListBox):
             ),
         )
 
-        player_section = SidebarSection(
+        anime_section = SidebarSection(
             title="Anime",
             header_icon=Gtk.Image.new_from_icon_name(
                 "applications-multimedia-symbolic", Gtk.IconSize.LARGE_TOOLBAR
@@ -149,7 +146,7 @@ class Sidebar(Gtk.ListBox):
 
         self.sections["Search"] = search_section
         self.sections["User"] = user_section
-        self.sections["Anime"] = player_section
+        self.sections["Anime"] = anime_section
 
         self.reload()
 
@@ -177,7 +174,7 @@ class Sidebar(Gtk.ListBox):
         callback: Callable,
         icon: Optional[Gtk.Image] = None,
         removeable: bool = False,
-        remove_callback: Optional[Callable] = None,
+        remove_callback: Optional[Callable[[SideBarRow], None]] = None,
     ) -> SideBarRow:
         btn = self.sections[section_name].add_button(
             title, callback, icon, removeable, remove_callback

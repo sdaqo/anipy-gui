@@ -10,5 +10,3 @@ def get_valid_pathname(name):
         name = name.replace("/", "_")
 
     return name
-
-

@@ -5,7 +5,13 @@ from copy import deepcopy
 from loguru import logger
 from appdirs import user_data_dir
 
-from anipy_gui.progress import Progress, set_progress, get_progress
+from anipy_gui.progress import (
+    Progress,
+    ProgressList,
+    add_progress,
+    get_progress,
+    get_progress_episode,
+)
 from anipy_gui.anime_info import AnimeInfo
 from anipy_gui.settings import load_settings
 from anipy_gui.version import __appname__
@@ -64,8 +70,11 @@ class Anime(Entry):
 
         return info
 
-    def get_progress(self) -> Union[Progress, None]:
+    def get_progress(self) -> ProgressList:
         return get_progress(self.show_name)
+
+    def get_progress_episode(self, episode: Union[int, float]) -> Union[Progress, None]:
+        return get_progress_episode(self.show_name, episode)
 
     def get_image(self) -> Path:
         cached_img = image_from_cache(self.show_name)
@@ -84,6 +93,5 @@ class Anime(Entry):
         else:
             remove_favorite(self.show_name)
 
-        
-    def set_progress(self, progress: Progress):
-        set_progress(self.show_name, progress)
+    def add_progress(self, progress: Progress):
+        add_progress(self.show_name, progress)

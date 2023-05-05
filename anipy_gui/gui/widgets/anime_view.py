@@ -2,11 +2,11 @@ import threading
 from anipy_cli import Entry
 from gi.repository import GLib, Gio, Gtk, GdkPixbuf, Pango, Gdk
 from loguru import logger
-from typing import Callable
+from typing import Callable, List
 from pathlib import Path
 
 from anipy_gui.anime import Anime
-from anipy_gui.gui.widgets.anime_revealer import AnimeRevealer
+from anipy_gui.gui.widgets.anime_revealer import AnimeRevealer, RevealerAction
 
 
 class FavoriteButton(Gtk.Button):
@@ -17,7 +17,7 @@ class FavoriteButton(Gtk.Button):
         self.fav_icon = Gtk.Image.new_from_icon_name(
             "starred-symbolic", Gtk.IconSize.BUTTON
         )
-        self.fav_icon.override_color(Gtk.StateFlags.NORMAL, self.get_fav_icon_color())
+        self.set_fav_icon_color()
 
         self.add(self.fav_icon)
         self.set_relief(Gtk.ReliefStyle.NONE)
@@ -26,33 +26,33 @@ class FavoriteButton(Gtk.Button):
         self.set_margin_top(5)
         self.set_margin_end(5)
         self.connect("clicked", self.onclick)
+        #TODO: Find another signal to connect to, notify is called too often
+        self.connect("notify", self.set_fav_icon_color)
         self.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.5))
 
-    def get_fav_icon_color(self) -> Gdk.RGBA:
+    def set_fav_icon_color(self, *_):
         if self.anime.get_is_favorite():
-            return Gdk.RGBA(1, 1, 0, 1)
+            col = Gdk.RGBA(1, 1, 0, 1)
         else:
-            return Gdk.RGBA(0, 0, 0, 1)
+            col = Gdk.RGBA(0, 0, 0, 1)
+        
+        self.fav_icon.override_color(Gtk.StateFlags.NORMAL, col)
+
 
     def onclick(self, widget):
         self.anime.set_favorite(not self.anime.get_is_favorite())
-        self.fav_icon.override_color(Gtk.StateFlags.NORMAL, self.get_fav_icon_color())
+        self.set_fav_icon_color()
 
 
 class AnimeWidget(Gtk.Overlay):
-    WIDTH = 150
-    HEIGHT = 220
-
-    def __init__(self, anime: Anime, img_loader: Callable[..., Path]):
+    def __init__(self, anime: Anime, img_loader: Callable[..., Path], width=150, height=220):
         super().__init__()
+        self.WIDTH, self.HEIGHT = width, height
         self.set_size_request(self.WIDTH, self.HEIGHT)
         self.anime = anime
         self.img_loader = img_loader
 
         self.spinner = Gtk.Spinner()
-        self.image_thread = threading.Thread(target=self.load_image)
-        self.image_thread.daemon = True
-        self.image_thread.start()
 
         self.fav_button = FavoriteButton(self.anime)
 
@@ -75,13 +75,36 @@ class AnimeWidget(Gtk.Overlay):
         self.label.set_margin_top(2)
         self.label.set_margin_bottom(2)
         self.label.set_ellipsize(Pango.EllipsizeMode.END)
-
         self.title_box.add(self.label)
 
+        self.status_box = Gtk.Box()
+        self.status_box.set_valign(Gtk.Align.START)
+        self.status_box.set_halign(Gtk.Align.START)
+        self.status_box.set_margin_start(5)
+        self.status_box.set_margin_top(5)
+        self.status_box.get_style_context().add_class("title-box")
+
+        self.status_label = Gtk.Label("")
+        self.status_label.override_color(
+            Gtk.StateFlags.NORMAL, Gdk.RGBA(255, 255, 255, 1)
+        )
+        self.status_label.set_max_width_chars(20)
+        self.status_label.set_margin_start(2)
+        self.status_label.set_margin_end(2)
+        self.status_label.set_margin_top(2)
+        self.status_label.set_margin_bottom(2)
+        self.status_label.set_ellipsize(Pango.EllipsizeMode.END)
+        self.status_box.add(self.status_label)
+
+        self.add_overlay(self.status_box)
         self.add_overlay(self.fav_button)
         self.add_overlay(self.title_box)
 
-    def load_image(self):
+        self.image_thread = threading.Thread(target=self.load_image_and_status)
+        self.image_thread.daemon = True
+        self.image_thread.start()
+
+    def load_image_and_status(self):
         GLib.idle_add(self.add, self.spinner)
         GLib.idle_add(self.spinner.start)
 
@@ -89,9 +112,23 @@ class AnimeWidget(Gtk.Overlay):
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.img_path)
         pixbuf = self.scale_image(pixbuf, self.HEIGHT, self.WIDTH)
         self.img = Gtk.Image.new_from_pixbuf(pixbuf)
+
+        anime_status = self.anime.get_anime_info().status
+        color_dict = {
+            "Ongoing": Gdk.RGBA(0, 1, 0, 0.7),
+            "Completed": Gdk.RGBA(1, 0, 0, 0.7),
+            "Upcoming": Gdk.RGBA(0, 0, 1, 0.7),
+        }
+
+        self.status_box.override_background_color(
+            Gtk.StateFlags.NORMAL, color_dict.get(anime_status, Gdk.RGBA(0, 0, 0, 0.7))
+        )
+        self.status_label.set_text(anime_status)
+
         GLib.idle_add(self.remove, self.spinner)
         GLib.idle_add(self.add, self.img)
         GLib.idle_add(self.img.show)
+        GLib.idle_add(self.status_box.show_all)
 
     def scale_image(self, pixbuf: GdkPixbuf.Pixbuf, height, width) -> GdkPixbuf.Pixbuf:
         ar = pixbuf.get_width() / pixbuf.get_height()
@@ -103,14 +140,6 @@ class AnimeWidget(Gtk.Overlay):
         else:
             pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
         return pixbuf
-
-    def resize(self, width, height):
-        self.set_size_request(width, height)
-        self.remove(self.img)
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.img_path)
-        pixbuf = self.scale_image(pixbuf, height, width)
-        self.img = Gtk.Image.new_from_pixbuf(pixbuf)
-        self.add(self.img)
 
 
 class AnimeGrid(Gtk.FlowBox):
@@ -146,7 +175,7 @@ class AnimeGrid(Gtk.FlowBox):
 
 
 class AnimeView(Gtk.Box):
-    def __init__(self, application):
+    def __init__(self, application, revealer_actions: List[RevealerAction]):
         super().__init__()
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.get_style_context().add_class("anime-view")
@@ -174,9 +203,7 @@ class AnimeView(Gtk.Box):
 
         self.overlay.add(self.scroll)
 
-        self.revealer = AnimeRevealer(
-            play_callback=self.anime_play, download_callback=self.anime_download
-        )
+        self.revealer = AnimeRevealer(revealer_actions)
         self.revealer.set_reveal_child(False)
         self.pack_end(self.revealer, False, False, 0)
 

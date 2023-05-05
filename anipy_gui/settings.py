@@ -23,6 +23,7 @@ def get_settings_file():
 class Settings:
     quality: str = "best"
     keep_progress: bool = True
+    max_cache_size: int = -1
 
     def __setattr__(self, name, value):
         # Write Settings when something changes
