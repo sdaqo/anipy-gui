@@ -1,6 +1,6 @@
 # A reimplementation of anipy-gui in gtk3
 
-### **Currently In development**: Not usable
+### **Currently In development**: Kinda usable
 ### If there are features you want to see in this new version do open an issue to discuss it. 
 ### Until this is in a stable state pull requests will not be accepted
 
