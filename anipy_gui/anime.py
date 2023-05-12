@@ -93,5 +93,5 @@ class Anime(Entry):
         else:
             remove_favorite(self.show_name)
 
-    def add_progress(self, progress: Progress):
-        add_progress(self.show_name, progress)
+    def add_progress(self, episde: Union[int, float], time: Union[int, float]):
+        add_progress(self.show_name, Progress(episode=episde, time=time))

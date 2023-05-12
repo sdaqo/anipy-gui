@@ -115,9 +115,7 @@ class AniPyWindow(Gtk.ApplicationWindow):
         self.main_stack.add_named(anime_wg, anime.show_name)
         
         def remove_anime(row: SideBarRow):
-            self.main_stack.remove(self.main_stack.get_child_by_name(anime.show_name))
-            logger.debug("Removing anime {}, now we queue_draw", anime)
-            self.queue_draw()
+            anime_wg.destroy()
             self.sidebar.remove_button(row)
 
         self.sidebar.add_button(

@@ -3,7 +3,6 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-from pathlib import Path
 from loguru import logger
 
 from anipy_gui.gui.anipywindow import AniPyWindow
@@ -20,7 +19,7 @@ class AniPyApplication(Gtk.Application):
     def do_activate(self) -> None:
         if not self.window:
             self.window = AniPyWindow(application=self)
-
+        
         self.window.present()
 
     def quit(self, **kwargs):

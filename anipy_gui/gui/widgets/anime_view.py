@@ -165,6 +165,7 @@ class AnimeGrid(Gtk.FlowBox):
     def add_anime_widget(self, anime_widget: AnimeWidget):
         self.add(anime_widget)
 
+
     def on_child_activated(self, widget, child):
         anime_widget = child.get_child()
         self.on_anime_selected(anime_widget.anime)
